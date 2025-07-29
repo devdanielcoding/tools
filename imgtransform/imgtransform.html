@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Convertir PNG a JPG</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    input[type="file"] {
+      margin: 20px;
+    }
+    img {
+      max-width: 300px;
+      margin-top: 20px;
+      border: 1px solid #ccc;
+    }
+    button {
+      font-size: 16px;
+      padding: 10px 20px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🖼️ Convertir PNG a JPG</h1>
+  <input type="file" id="pngInput" accept="image/png" />
+  <br />
+  <canvas id="canvas" style="display:none;"></canvas>
+  <div id="preview"></div>
+  <button id="downloadBtn" style="display:none;">Descargar JPG</button>
+
+  <script>
+    const input = document.getElementById("pngInput");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const preview = document.getElementById("preview");
+
+    input.addEventListener("change", function () {
+      const file = this.files[0];
+      if (!file) return;
+
+      const img = new Image();
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        img.src = e.target.result;
+      };
+
+      img.onload = function () {
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // Llenar fondo blanco (PNG puede tener transparencia)
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+
+        // Mostrar preview
+        const jpgData = canvas.toDataURL("image/jpeg", 0.85); // Calidad 85%
+        preview.innerHTML = `<img src="${jpgData}" alt="Preview JPG" />`;
+
+        // Preparar botón de descarga
+        downloadBtn.style.display = "inline-block";
+        downloadBtn.onclick = function () {
+          const link = document.createElement("a");
+          link.download = "convertido.jpg";
+          link.href = jpgData;
+          link.click();
+        };
+      };
+
+      reader.readAsDataURL(file);
+    });
+  </script>
+
+</body>
+</html>
